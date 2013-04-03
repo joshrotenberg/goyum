@@ -8,7 +8,18 @@ import (
 	"strconv"
 )
 
-type Flavors map[string]int
+type Flavors struct {
+	SweetMin   int
+	SweetMax   int
+	MeatyMax   int
+	MeatyMin   int
+	SourMin    int
+	SourMax    int
+	BitterMin  int
+	BitterMax  int
+	PiquantMin int
+	PiquantMax int
+}
 
 type SearchParams struct {
 	q                     string
@@ -27,13 +38,18 @@ type SearchParams struct {
 	MaxResult             int
 	Start                 int
 	FacetField            []string
-	Flavors               map[string]int
+	Flavors               *Flavors
 }
 
 func NewSearchParams() *SearchParams {
 	p := new(SearchParams)
-	p.Flavors = make(map[string]int)
+	p.Flavors = new(Flavors)
 	return p
+}
+
+func (f *Flavors) values() url.Values {
+	v := make(url.Values)
+	return v
 }
 
 func (sp *SearchParams) values() url.Values {
@@ -62,8 +78,20 @@ func (sp *SearchParams) values() url.Values {
 			for j := 0; j < f.Len(); j++ {
 				v.Add(buf.String(), s.Index(j).String())
 			}
+		case reflect.Map:
+			k := f.MapKeys()
+			fmt.Println(k)
+		case reflect.Struct:
+			switch f.Type().String() {
+			case "*goyum.Flavors":
+				fmt.Println("its a Doof")
+			default:
+				fmt.Println("no idea")
+			}
+		case reflect.Ptr:
+			fmt.Println("hits a " + f.Kind().String())
 		default:
-			fmt.Println("huh?")
+			fmt.Println("its a " + f.Type().String())
 		}
 	}
 
