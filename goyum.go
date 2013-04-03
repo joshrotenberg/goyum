@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	YummlyApiUrl     = "http://api.yummly.com/"
-	YummlyApiUrlSSL  = "https://api.yummly.com/"
+	YummlyApiUrl     = "http://api.yummly.com"
+	YummlyApiUrlSSL  = "https://api.yummly.com"
 	YummlyApiVersion = "v1"
 )
 
@@ -36,8 +36,8 @@ func SetCredentials(appId string, appKey string) (*Yummly, error) {
 }
 
 func call(y *Yummly, method, uri, params string) (response *http.Response, err error) {
-	url := fmt.Sprintf("%s/%s/%s?%s", YummlyApiUrl, YummlyApiVersion, uri, params)
-
+	url := fmt.Sprintf("%s/%s/api/%s?%s", YummlyApiUrl, YummlyApiVersion, uri, params)
+	fmt.Println(url)
 	request, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return
