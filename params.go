@@ -4,96 +4,162 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
-	"reflect"
 	"strconv"
 )
 
-type Flavors struct {
-	SweetMin   int
-	SweetMax   int
-	MeatyMax   int
-	MeatyMin   int
-	SourMin    int
-	SourMax    int
-	BitterMin  int
-	BitterMax  int
-	PiquantMin int
-	PiquantMax int
-}
-
 type SearchParams struct {
-	q                     string
-	RequirePictures       bool
-	AllowedIngredient     []string
-	AllowedDiet           []string
-	AllowedAllergy        []string
-	AllowedCuisine        []string
-	AllowedCourse         []string
-	AllowedHoliday        []string
-	ExcludedIngredient    []string
-	ExcludedCuisine       []string
-	ExcludedCourse        []string
-	ExcludedHoliday       []string
-	MaxTotalTimeInSeconds int
-	MaxResult             int
-	Start                 int
-	FacetField            []string
-	Flavors               *Flavors
+	q string
+	v url.Values
 }
 
-func NewSearchParams() *SearchParams {
+func NewSearchParams(query string) *SearchParams {
 	p := new(SearchParams)
-	p.Flavors = new(Flavors)
+	p.v = make(url.Values)
+	p.v.Add("q", query)
 	return p
 }
 
-func (f *Flavors) values() url.Values {
-	v := make(url.Values)
-	return v
+// General parameters
+func (sp *SearchParams) RequirePictures(r bool) *SearchParams {
+	sp.v.Set("requirePictures", fmt.Sprintf("%t", r))
+	return sp
 }
 
-func (sp *SearchParams) values() url.Values {
-	v := make(url.Values)
-	s := reflect.ValueOf(sp).Elem()
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		name := downcase(typeOfT.Field(i).Name)
+func (sp *SearchParams) MaxTotalTimeInSeconds(seconds uint64) *SearchParams {
+	sp.v.Set("maxTotalTimeInSeconds", strconv.FormatUint(seconds, 10))
+	return sp
+}
 
-		switch f.Kind() {
-		case reflect.String:
-			v.Add(name, f.String())
-		case reflect.Bool:
-			v.Add(name, strconv.FormatBool(f.Bool()))
-		case reflect.Int:
-			if f.Int() > 0 {
-				v.Add(name, strconv.FormatInt(f.Int(), 10))
-			}
-		case reflect.Slice:
-			s := f.Slice(0, f.Len())
-			var buf bytes.Buffer
-			buf.WriteString(name)
-			buf.WriteString("[]")
+func (sp *SearchParams) MaxResult(results uint64) *SearchParams {
+	sp.v.Set("maxResult", strconv.FormatUint(results, 10))
+	return sp
+}
 
-			for j := 0; j < f.Len(); j++ {
-				v.Add(buf.String(), s.Index(j).String())
-			}
-		case reflect.Map:
-			k := f.MapKeys()
-			fmt.Println(k)
-		case reflect.Struct:
-			switch f.Type().String() {
-			case "*goyum.Flavors":
-				fmt.Println("its a Doof")
-			default:
-				fmt.Println("no idea")
-			}
-		case reflect.Ptr:
-			fmt.Println("hits a " + f.Kind().String())
-		default:
-			fmt.Println("its a " + f.Type().String())
-		}
+func (sp *SearchParams) Start(start uint64) *SearchParams {
+	sp.v.Set("start", strconv.FormatUint(start, 10))
+	return sp
+}
+
+// Facets
+func addFacet(v *url.Values, name string) {
+	v.Add("facetField[]", name)
+}
+
+func (sp *SearchParams) AddFacetIngredient() *SearchParams {
+	addFacet(&sp.v, "ingredient")
+	return sp
+}
+
+func (sp *SearchParams) AddFacetDiet() *SearchParams {
+	addFacet(&sp.v, "diet")
+	return sp
+}
+
+// Ingredients
+func addSliceToValues(v *url.Values, k string, s []string) {
+	for _, s := range s {
+		v.Add(k, s)
 	}
+}
 
-	return v
+func (sp *SearchParams) AddAllowedIngredients(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedIngredient[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedIngredients(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedIngredient[]", is)
+	return sp
+}
+
+// Diets
+func (sp *SearchParams) AddAllowedDiets(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedDiet[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedDiets(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedDiet[]", is)
+	return sp
+}
+
+// Allergies
+func (sp *SearchParams) AddAllowedAllergys(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedAllergy[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedAllergys(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedAllergy[]", is)
+	return sp
+}
+
+// Cuisine
+func (sp *SearchParams) AddAllowedCuisines(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedCuisine[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedCuisines(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedCuisine[]", is)
+	return sp
+}
+
+// Courses
+func (sp *SearchParams) AddAllowedCourses(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedCourse[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedCourses(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedCourse[]", is)
+	return sp
+}
+
+// Holidays
+func (sp *SearchParams) AddAllowedHolidays(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "allowedHoliday[]", is)
+	return sp
+}
+
+func (sp *SearchParams) AddExcludedHolidays(is ...string) *SearchParams {
+	addSliceToValues(&sp.v, "excludedHoliday[]", is)
+	return sp
+}
+
+func addAttribute(v *url.Values, class, att, minmax string, num float64) {
+	var buf bytes.Buffer
+	buf.WriteString(class)
+	buf.WriteString(".")
+	buf.WriteString(att)
+	buf.WriteString(".")
+	buf.WriteString(minmax)
+	v.Add(buf.String(), strconv.FormatFloat(num, 'f', -1, 64))
+}
+
+// Flavors
+func (sp *SearchParams) AddFlavorMin(flavor string, min float64) *SearchParams {
+	addAttribute(&sp.v, "flavor", flavor, "min", min)
+	return sp
+}
+
+func (sp *SearchParams) AddFlavorMax(flavor string, max float64) *SearchParams {
+	addAttribute(&sp.v, "flavor", flavor, "max", max)
+	return sp
+}
+
+// Nutrition
+func (sp *SearchParams) AddNutritionMin(nutrient string, min float64) *SearchParams {
+	addAttribute(&sp.v, "nutrition", nutrient, "min", min)
+	return sp
+}
+
+func (sp *SearchParams) AddNutritionMax(nutrient string, max float64) *SearchParams {
+	addAttribute(&sp.v, "nutrition", nutrient, "max", max)
+	return sp
+}
+
+// Encode the string
+func (sp *SearchParams) Encode() string {
+	return sp.v.Encode()
 }

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 const (
@@ -26,7 +25,7 @@ type Yummly struct {
 }
 
 type Params interface {
-	values() url.Values
+	Encode() string
 }
 
 func SetCredentials(appId string, appKey string) (*Yummly, error) {
@@ -58,7 +57,7 @@ func call(y *Yummly, method, uri, params string) (response *http.Response, err e
 }
 
 func (y *Yummly) callYummlyApi(method, uri string, params Params, result interface{}) error {
-	response, err := call(y, method, uri, params.values().Encode())
+	response, err := call(y, method, uri, params.Encode())
 	if err != nil {
 		return err
 	}

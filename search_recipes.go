@@ -1,7 +1,6 @@
 package goyum
 
-import (
-)
+import ()
 
 type SearchResults struct {
 	Attribution     map[string]interface{} `json:"attribution"`
@@ -11,10 +10,8 @@ type SearchResults struct {
 	y               *Yummly
 }
 
-func (y *Yummly) SearchRecipes(q string, params *SearchParams) (*SearchResults, error) {
+func (y *Yummly) SearchRecipes(params *SearchParams) (*SearchResults, error) {
 	var result SearchResults
-	params.q = q
-	//fmt.Println(params)
 	err := y.callYummlyApi("GET", "recipes", params, &result)
 	if err != nil {
 		return nil, err

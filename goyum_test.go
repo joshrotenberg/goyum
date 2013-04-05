@@ -34,6 +34,5 @@ func TestSetCredentials(t *testing.T) {
 	} else {
 		t.Logf("%+v", y)
 	}
-	
-}
 
+}
