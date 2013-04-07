@@ -2,33 +2,40 @@ package goyum
 
 import (
 	"fmt"
-	"net/url"
 )
 
-type MetaDataParams struct {
+type Diet struct {
+	Id               int
+	ShortDescription string
+	LongDescription  string
+	SearchValue      string
 }
 
-func (sp *MetaDataParams) values() url.Values {
-	return make(url.Values)
+type DietMetadata struct {
+	Diets []*Diet
 }
 
-func (sp *MetaDataParams) Encode() string {
-	return "rad"
-}
-
-const (
-	YummlyMetadataUrl = "http://meta.yummly.com"
-)
-
-func (y *Yummly) Ingredients() error {
-	var i interface{}
-	var p MetaDataParams
-	err := y.callYummlyApi("GET", "metadata/ingredient", &p, &i)
+func (y *Yummly) Diets() error {
+	var d DietMetadata
+	sp := NewSearchParams("")
+	err := y.callYummlyApi("GET", "metadata/diet", sp, &d)
 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v\n", i)
+	fmt.Printf("nice %+v\n", d)
+	return nil
+}
 
+func (y *Yummly) Ingredients() error {
+	var i interface{}
+
+	sp := NewSearchParams("")
+	err := y.callYummlyApi("GET", "metadata/ingredient", sp, &i)
+
+	if err != nil {
+		return err
+	}
+	fmt.Printf("nice %+v\n", i)
 	return nil
 }
