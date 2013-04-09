@@ -17,6 +17,7 @@ type DietMetadata struct {
 
 func (y *Yummly) Diets() error {
 	var d DietMetadata
+	var i interface{}
 	sp := NewSearchParams("")
 	err := y.callYummlyApi("GET", "metadata/diet", sp, &d)
 
