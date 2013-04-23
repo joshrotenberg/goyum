@@ -17,7 +17,7 @@ const (
 
 var (
 	RegexpMetadata = regexp.MustCompile("set_metadata\\('(diet|ingredient|course|allergy|cuisine|holiday|nutrition|flavor)', (.*)\\);")
-	ErrorNotJSON = errors.New("Yummly API did not return JSON")
+	ErrorNotJSON   = errors.New("Yummly API did not return JSON")
 )
 
 type Yummly struct {
@@ -33,7 +33,6 @@ type Params interface {
 func SetCredentials(appId string, appKey string) (*Yummly, error) {
 	client := &http.Client{}
 	return &Yummly{httpClient: client, AppId: appId, AppKey: appKey}, nil
-
 }
 
 func call(y *Yummly, method, uri, params string) (response *http.Response, err error) {
@@ -58,11 +57,6 @@ func call(y *Yummly, method, uri, params string) (response *http.Response, err e
 	return
 }
 
-func setResult(match []int, result interface{}) {
-
-	result = "foo"
-}
-
 func (y *Yummly) callYummlyApi(method, uri string, params Params, result interface{}) error {
 	response, err := call(y, method, uri, params.Encode())
 	if err != nil {
@@ -79,7 +73,10 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 		if err != nil {
 			return err
 		} else {
-			err = json.Unmarshal(js, result)
+			err = json.Unmarshal(js, &result)
+			if err != nil {
+				return err
+			}
 		}
 	case "text/javascript":
 		body, err := ioutil.ReadAll(response.Body)
