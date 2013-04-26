@@ -1,9 +1,11 @@
 package goyum
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -44,7 +46,7 @@ func call(y *Yummly, method, uri, params string) (response *http.Response, err e
 
 	request.Header.Set("X-Yummly-App-ID", y.AppId)
 	request.Header.Set("X-Yummly-App-Key", y.AppKey)
-	request.Header.Add("Accept-Encoding", "gzip")
+	request.Header.Set("Accept-Encoding", "gzip")
 
 	response, err = y.httpClient.Do(request)
 	if err != nil {
@@ -64,12 +66,25 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 	}
 	defer response.Body.Close()
 
+	var reader io.ReadCloser
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return err
+		}
+	default:
+		reader = response.Body
+	}
+	fmt.Println(response.Header.Get("Content-Type"))
 	switch response.Header.Get("Content-Type") {
 	case "application/json":
 		fallthrough
+	case "application/json; charset=UTF-8":
+		fallthrough
 	case "application/json; charset=utf-8":
 		var js []byte
-		js, err := ioutil.ReadAll(response.Body)
+		js, err := ioutil.ReadAll(reader)
 		if err != nil {
 			return err
 		} else {
@@ -78,18 +93,18 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 				return err
 			}
 		}
-	case "text/javascript":
-		body, err := ioutil.ReadAll(response.Body)
+	case "text/javascript; charset=UTF-8":
+		body, err := ioutil.ReadAll(reader)
 		if err != nil {
 			return err
 		}
 
+		m := RegexpMetadata.FindSubmatchIndex(body)
+		err = json.Unmarshal(body[m[4]:m[5]], result)
 		if err != nil {
 			return err
-		} else {
-			m := RegexpMetadata.FindSubmatchIndex(body)
-			err = json.Unmarshal(body[m[4]:m[5]], result)
 		}
+
 	default:
 		err = ErrorNotJSON
 	}

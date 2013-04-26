@@ -1,7 +1,6 @@
 package goyum
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -13,15 +12,14 @@ func TestSearchRecipes(t *testing.T) {
 
 	var y *Yummly
 	y, err = SetCredentials(appid, appkey)
-	sp := NewSearchParams("onion soup")
+	sp := NewSearchParams("meatloaf")
 	sp.RequirePictures(true).MaxTotalTimeInSeconds(60).AddAllowedIngredients("garlic", "onions")
-	sp.AddExcludedIngredients("chalk", "bricks").AddFlavorMin("sweet", 0.123232).AddFlavorMax("meaty", 0.7)
-	sp.AddNutritionMax("K", 3.5).AddNutritionMin("CHOCDF", 0).AddAllowedCourses("course^course-Soups")
-	sp.AddFacetIngredient()
+//	sp.AddExcludedIngredients("chalk", "bricks").AddFlavorMin("sweet", 0.123232).AddFlavorMax("meaty", 0.7)
+//	sp.AddNutritionMax("K", 3.5).AddNutritionMin("CHOCDF", 0).AddAllowedCourses("course^course-Soups")
+//	sp.AddFacetIngredient()
 	if res, err := y.SearchRecipes(sp); err != nil {
-		fmt.Println(err)
 		t.Error(err)
 	} else {
-		t.Logf(" res is %+v\n", res)
+		t.Logf(" res is %+v\n", res.Attribution)
 	}
 }

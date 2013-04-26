@@ -20,10 +20,13 @@ result, err := y.SearchRecipes(sp)
 if err != nil {
 	// deal with err
 } else {
-	// dig around in the result for the recipe you want
+	// check result.TotalMatchCount for the number of results
+	// dig around in result.Matches for the recipe you want
 }
 ```
 
 Full API documentation can be found at godoc.org: http://godoc.org/github.com/joshrotenberg/goyum
 
+## About
 
+Full disclosure: I wrote this mainly as an exercise to get familiar with Go. I'm not an employee of/contractor for Yummly, and Yummly does not support this library. If you happen to use this library and have issues or requests, please file them [here](https://github.com/joshrotenberg/goyum/issues).

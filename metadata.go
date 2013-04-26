@@ -16,15 +16,17 @@ type DietMetadata struct {
 }
 
 func (y *Yummly) Diets() error {
-	var d DietMetadata
+	//var d DietMetadata
+	fmt.Println("word up")
 	var i interface{}
 	sp := NewSearchParams("")
-	err := y.callYummlyApi("GET", "metadata/diet", sp, &d)
+	err := y.callYummlyApi("GET", "metadata/diet", sp, &i)
 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("nice %+v\n", d)
+	fmt.Println(i)
+	//t.Logf("nice %+v\n", d)
 	return nil
 }
 
