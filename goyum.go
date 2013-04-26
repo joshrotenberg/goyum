@@ -76,6 +76,7 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 	default:
 		reader = response.Body
 	}
+
 	fmt.Println(response.Header.Get("Content-Type"))
 	switch response.Header.Get("Content-Type") {
 	case "application/json":
@@ -93,13 +94,18 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 				return err
 			}
 		}
+	case "text/javascript":
+		fallthrough
+	case "text/javascript; charset=utf-8":
+		fallthrough
 	case "text/javascript; charset=UTF-8":
 		body, err := ioutil.ReadAll(reader)
 		if err != nil {
 			return err
 		}
-
+		fmt.Println(string(body))
 		m := RegexpMetadata.FindSubmatchIndex(body)
+		fmt.Println(string(body[m[4]:m[5]]))
 		err = json.Unmarshal(body[m[4]:m[5]], result)
 		if err != nil {
 			return err

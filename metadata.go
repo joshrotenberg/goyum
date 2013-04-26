@@ -5,28 +5,24 @@ import (
 )
 
 type Diet struct {
-	Id               int
-	ShortDescription string
-	LongDescription  string
-	SearchValue      string
-}
-
-type DietMetadata struct {
-	Diets []*Diet
+	Id               string    `json:"id"`
+	ShortDescription string `json:"shortDescription"`
+	LongDescription  string `json:"longDescription"`
+	SearchValue      string `json:"searchValue"`
+	Type             string `json:"type"`
 }
 
 func (y *Yummly) Diets() error {
-	//var d DietMetadata
-	fmt.Println("word up")
-	var i interface{}
+	var diets []Diet
+
 	sp := NewSearchParams("")
-	err := y.callYummlyApi("GET", "metadata/diet", sp, &i)
+	err := y.callYummlyApi("GET", "metadata/diet", sp, &diets)
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-	fmt.Println(i)
-	//t.Logf("nice %+v\n", d)
+	fmt.Printf("nice %+v\n", diets)
 	return nil
 }
 

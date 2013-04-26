@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestIngredients(t *testing.T) {
+func TestDiet(t *testing.T) {
 	appid, appkey, err := getTestingCredentials()
 	if err != nil {
 		t.Fatal(err)
