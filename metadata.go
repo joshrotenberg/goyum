@@ -1,40 +1,52 @@
 package goyum
 
 import (
-	"fmt"
+	//"fmt"
 )
 
 type Diet struct {
-	Id               string    `json:"id"`
+	Id               string `json:"id"`
 	ShortDescription string `json:"shortDescription"`
 	LongDescription  string `json:"longDescription"`
 	SearchValue      string `json:"searchValue"`
 	Type             string `json:"type"`
 }
 
-func (y *Yummly) Diets() error {
-	var diets []Diet
+type Ingredient struct {
+	Id           string `json:"id"`
+	Term         string `json:"term"`
+	SearchValue  string `json:"searchValue"`
+	IngredientId string `json:"ingredientId"`
+	UseCount     int    `json:"useCount"`
+}
+
+func getMetaData(y *Yummly, t string, d interface{}) error {
 
 	sp := NewSearchParams("")
-	err := y.callYummlyApi("GET", "metadata/diet", sp, &diets)
+	err := y.callYummlyApi("GET", "metadata/"+t, sp, d)
 
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	fmt.Printf("nice %+v\n", diets)
 	return nil
 }
 
-func (y *Yummly) Ingredients() error {
-	var i interface{}
+func (y *Yummly) Diets() ([]Diet, error) {
+	var diets []Diet
 
-	sp := NewSearchParams("")
-	err := y.callYummlyApi("GET", "metadata/ingredient", sp, &i)
-
+	err := getMetaData(y, "diet", &diets)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Printf("nice %+v\n", i)
-	return nil
+	return diets, nil
+}
+
+func (y *Yummly) Ingredients() ([]Ingredient, error) {
+	var ingredients []Ingredient
+
+	err := getMetaData(y, "ingredient", &ingredients)
+	if err != nil {
+		return nil, err
+	}
+	return ingredients, nil
 }
