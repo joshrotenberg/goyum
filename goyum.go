@@ -77,7 +77,6 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 		reader = response.Body
 	}
 
-	fmt.Println(response.Header.Get("Content-Type"))
 	switch response.Header.Get("Content-Type") {
 	case "application/json":
 		fallthrough
@@ -103,9 +102,7 @@ func (y *Yummly) callYummlyApi(method, uri string, params Params, result interfa
 		if err != nil {
 			return err
 		}
-		fmt.Println(string(body))
 		m := RegexpMetadata.FindSubmatchIndex(body)
-		fmt.Println(string(body[m[4]:m[5]]))
 		err = json.Unmarshal(body[m[4]:m[5]], result)
 		if err != nil {
 			return err
