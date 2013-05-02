@@ -34,9 +34,15 @@ type Allergy struct {
 }
 
 type Cuisine struct {
+	Id          string `json:"id"`
+	Description string `json:"description"`
+	SearchValue string `json:"searchValue"`
 }
 
 type Holiday struct {
+	Id          string `json:"id"`
+	Description string `json:"description"`
+	SearchValue string `json:"searchValue"`
 }
 
 type Nutrition struct {
