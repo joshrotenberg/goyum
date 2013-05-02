@@ -1,11 +1,10 @@
 package goyum
 
 import (
-	"sort"
 	"testing"
 )
 
-func TestDiet(t *testing.T) {
+func getHandle(t *testing.T) *Yummly {
 	appid, appkey, err := getTestingCredentials()
 	if err != nil {
 		t.Fatal(err)
@@ -13,41 +12,38 @@ func TestDiet(t *testing.T) {
 
 	var y *Yummly
 	y, err = SetCredentials(appid, appkey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return y
+}
+
+func TestDiet(t *testing.T) {
+	y := getHandle(t)
+
 	if diets, err := y.Diets(); err != nil {
 		t.Error(err)
 	} else {
-		//t.Logf("diets is %+v\n", diets)
-		found := sort.Search(len(diets), func(i int) bool {
-			t.Log(diets[i])
-			return diets[i].Id == "386"
-		})
-		t.Log(found)
-		for i := 0; i < len(diets); i++ {
-			shortDescription := diets[i].ShortDescription
-			if shortDescription == "Vegan" {
-				t.Logf("'%s'\n", shortDescription)
-			}
-		}
+		t.Logf("diets %+v\n", diets)
 	}
 }
 
 func TestIngredient(t *testing.T) {
-	appid, appkey, err := getTestingCredentials()
-	if err != nil {
-		t.Fatal(err)
-	}
+	y := getHandle(t)
 
-	var y *Yummly
-	y, err = SetCredentials(appid, appkey)
 	if ingredients, err := y.Ingredients(); err != nil {
 		t.Error(err)
 	} else {
-		t.Logf("first ingredient is %+v\n", ingredients[0])
-		for i := 0; i < len(ingredients); i++ {
-			useCount := ingredients[i].UseCount
-			if useCount > 0 {
-				t.Log(useCount)
-			}
-		}
+		t.Logf("ingredients %+v\n", ingredients)
+	}
+}
+
+func TestCourse(t *testing.T) {
+	y := getHandle(t)
+
+	if courses, err := y.Courses(); err != nil {
+		t.Error(err)
+	} else {
+		t.Logf("courses %+v\n", courses)
 	}
 }
